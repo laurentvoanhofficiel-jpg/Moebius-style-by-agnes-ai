@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moebius Style Generator v5 — Style First</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;background:#1a0f0a;color:#e8dcc8;min-height:100vh;padding:1rem 1rem 14rem;font-size:14px;line-height:1.5}
+.wrap{max-width:1400px;margin:0 auto}
+header{text-align:center;padding:1.5rem 0;border-bottom:1px solid #3d2418;margin-bottom:1.5rem}
+h1{font-family:Georgia,serif;font-size:2.4rem;font-weight:300;letter-spacing:.02em;margin-bottom:.4rem;background:linear-gradient(135deg,#6bafc4 0%,#d4a56a 50%,#e87b35 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1.05}
+.sub{font-family:Georgia,serif;font-style:italic;font-size:.85rem;color:#8a7a5c}
+.kata{font-size:.7rem;letter-spacing:.4em;color:#6bafc4;opacity:.75;text-transform:uppercase;margin-bottom:.5rem}
+.banner{background:linear-gradient(135deg,rgba(107,175,196,.08),rgba(212,165,106,.06));border:1px solid #3d2418;border-left:3px solid #6bafc4;border-radius:4px;padding:1rem 1.15rem;font-size:.78rem;color:#a89578;margin-bottom:1.2rem;line-height:1.65;font-family:Georgia,serif}
+.banner strong{color:#e8dcc8}
+.card{background:#231409;border:1px solid #3d2418;border-radius:4px;margin-bottom:1rem;overflow:hidden}
+.card-head{padding:.85rem 1rem;border-bottom:1px solid #3d2418;display:flex;justify-content:space-between;align-items:center;font-size:.72rem;text-transform:uppercase;letter-spacing:.15em;color:#d4c5a8;font-weight:600;font-family:Georgia,serif}
+.card-head .badge{font-size:.6rem;padding:.15rem .5rem;border:1px solid #6bafc4;color:#6bafc4;border-radius:2px;letter-spacing:.1em;background:rgba(107,175,196,.15)}
+.card-body{padding:1rem}
+textarea{width:100%;background:#150c06;border:1px solid #3d2418;border-radius:4px;padding:.7rem .85rem;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:.78rem;color:#e8dcc8;outline:none;min-height:80px;resize:vertical;line-height:1.55}
+textarea:focus{border-color:#6bafc4;box-shadow:0 0 0 3px rgba(107,175,196,.15)}
+.btn{width:100%;padding:.75rem;border-radius:4px;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border:1px solid;transition:all .15s;font-family:Georgia,serif}
+.btn-amber{background:linear-gradient(135deg,rgba(212,165,106,.18),rgba(232,123,53,.1));border-color:#d4a56a;color:#d4a56a}
+.btn-amber:hover:not(:disabled){background:rgba(212,165,106,.28)}
+.btn-amber:disabled{opacity:.3;cursor:not-allowed}
+.btn-slate{background:transparent;border-color:#3d2418;color:#a89578;font-size:.66rem;padding:.5rem;font-family:-apple-system,sans-serif}
+.btn-slate:hover:not(:disabled){color:#6bafc4;border-color:#6bafc4}
+.btn-slate:disabled{opacity:.3;cursor:not-allowed}
+.btn-mega{background:linear-gradient(135deg,#6bafc4,#d4a56a,#e87b35);border:none;color:#1a0f0a;padding:1rem;font-size:.85rem;letter-spacing:.18em;border-radius:5px;box-shadow:0 4px 20px rgba(107,175,196,.3);font-family:Georgia,serif;font-weight:700}
+.btn-mega:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 28px rgba(107,175,196,.5)}
+.btn-mega:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.row{display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap}
+.row .btn{width:auto;flex:1;min-width:100px}
+.status{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:#150c06;border:1px solid #3d2418;border-radius:4px;font-size:.72rem;color:#8a7a5c;margin-top:.5rem}
+.status.ok{background:rgba(16,185,129,.08);border-color:#065f46;color:#34d399}
+.status.err{background:rgba(196,69,54,.1);border-color:#7f1d1d;color:#f87171}
+.status.warn{background:rgba(229,193,90,.08);border-color:#8b5a2b;color:#e5c15a}
+.status .dot{width:6px;height:6px;border-radius:50%;background:#4a3828;flex-shrink:0}
+.status.ok .dot{background:#10b981;box-shadow:0 0 6px #10b981}
+.status.err .dot{background:#c44536}
+.status.warn .dot{background:#e5c15a}
+.hint{font-size:.68rem;color:#8a7a5c;margin-top:.4rem;font-family:Georgia,serif;font-style:italic}
+.images-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.6rem;margin-bottom:.6rem}
+.slot{border:2px dashed #4a3828;border-radius:4px;padding:.5rem;text-align:center;cursor:pointer;position:relative;transition:all .15s;background:#150c06;min-height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.4rem}
+.slot:hover{border-color:#6bafc4;background:rgba(107,175,196,.04)}
+.slot.filled{border-style:solid;border-color:#d4a56a;padding:.3rem}
+.slot input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.slot .icon{font-size:1.4rem;opacity:.5}
+.slot .txt{font-size:.7rem;color:#a89578;font-family:Georgia,serif}
+.slot .txt strong{color:#6bafc4}
+.slot img{max-width:100%;max-height:130px;border-radius:3px;display:block;object-fit:cover}
+.slot .rm{position:absolute;top:3px;right:3px;background:rgba(196,69,54,.85);color:#fff;border:none;border-radius:3px;width:20px;height:20px;font-size:.65rem;cursor:pointer;z-index:2}
+.control-panel{background:linear-gradient(135deg,rgba(107,175,196,.06),rgba(212,165,106,.04));border:1px solid #3d2418;border-left:3px solid #6bafc4;border-radius:5px;padding:1.1rem;margin-bottom:1rem}
+.control-panel .info{font-size:.78rem;color:#a89578;margin-bottom:.9rem;line-height:1.6;font-family:Georgia,serif}
+.control-panel .info strong{color:#e8dcc8}
+.progress-bar{height:6px;background:#150c06;border-radius:3px;overflow:hidden;margin-top:.7rem}
+.progress-bar .fill{height:100%;background:linear-gradient(90deg,#6bafc4,#d4a56a,#e87b35);width:0%;transition:width .3s;border-radius:3px}
+.progress-bar .fill.done{background:linear-gradient(90deg,#10b981,#34d399)}
+.batch-info{display:flex;gap:.75rem;flex-wrap:wrap;font-size:.7rem;font-family:ui-monospace,monospace;color:#8a7a5c;margin-top:.6rem;padding-top:.6rem;border-top:1px solid #3d2418}
+.batch-info strong{color:#6bafc4}
+.grid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.photo{background:#231409;border:1px solid #3d2418;border-radius:4px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .3s,box-shadow .3s}
+.photo.pending{border-color:#4a3828;opacity:.9}
+.photo.generating{border-color:#d4a56a;box-shadow:0 0 16px rgba(212,165,106,.35)}
+.photo.done{border-color:#6bafc4}
+.photo.error{border-color:#7f1d1d}
+.photo-img{aspect-ratio:9/16;background:#0a0603;display:flex;align-items:center;justify-content:center;position:relative;min-height:280px}
+.photo-img img{width:100%;height:100%;object-fit:contain;display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.photo-img .load{width:100%;height:100%;background:#0a0603;display:flex;align-items:center;justify-content:center;color:#4a3828;font-size:.72rem;font-family:ui-monospace,monospace;position:relative;overflow:hidden;flex-direction:column;gap:.5rem;padding:1rem;text-align:center}
+.photo-img .load::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(107,175,196,.08) 50%,transparent 70%);animation:shim 1.8s linear infinite;pointer-events:none}
+@keyframes shim{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.photo-img .load .spin{width:22px;height:22px;border:2px solid rgba(212,165,106,.25);border-top-color:#d4a56a;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:.4rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.photo-img .load .gen-title{font-size:.75rem;color:#d4a56a;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:Georgia,serif}
+.photo-img .err{width:100%;height:100%;background:rgba(196,69,54,.1);display:flex;align-items:center;justify-content:center;color:#f87171;font-size:.7rem;text-align:center;padding:.6rem;flex-direction:column;gap:.3rem}
+.photo-img .err small{color:#a89578;font-size:.6rem;font-family:ui-monospace,monospace}
+.photo-img .mini-btn{margin-top:.3rem;font-size:.65rem;padding:.3rem .8rem;border:1px solid #d4a56a;background:rgba(212,165,106,.15);color:#d4a56a;border-radius:3px;cursor:pointer;font-family:Georgia,serif;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.photo-img .mini-btn:hover{background:rgba(212,165,106,.25)}
+.photo-meta{padding:.7rem;border-top:1px solid #3d2418;flex:1;display:flex;flex-direction:column;gap:.4rem}
+.pbadge{display:inline-block;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;padding:.15rem .5rem;border-radius:2px;margin-right:.3rem;margin-bottom:.3rem;font-weight:700;border:1px solid;font-family:ui-monospace,monospace}
+.pbadge.gen{background:rgba(107,175,196,.12);color:#6bafc4;border-color:#2b5a6b}
+.ptitle{font-family:Georgia,serif;font-size:.9rem;color:#e8dcc8;margin-bottom:.3rem;line-height:1.3;font-style:italic}
+.pblock{background:#150c06;border:1px solid #3d2418;border-radius:4px;padding:.5rem;position:relative;margin-top:auto}
+.plabel{font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:#8a7a5c;font-family:ui-monospace,monospace;margin-bottom:.35rem}
+.ptext{font-size:.58rem;color:#a89578;font-family:ui-monospace,monospace;line-height:1.45;max-height:100px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;padding-right:3rem}
+.pcopy{position:absolute;top:.4rem;right:.4rem;font-size:.55rem;padding:.15rem .4rem;border:1px solid #3d2418;border-radius:2px;background:transparent;color:#8a7a5c;cursor:pointer}
+.pcopy:hover{color:#e8dcc8;border-color:#d4a56a}
+.popen{display:block;text-align:center;margin-top:.4rem;font-size:.58rem;text-transform:uppercase;letter-spacing:.15em;padding:.4rem;border:1px solid #3d2418;border-radius:4px;color:#a89578;text-decoration:none}
+.popen:hover{color:#e8dcc8;border-color:#d4a56a}
+.panel{position:fixed;bottom:0;left:0;right:0;z-index:40}
+.handle{background:#231409;border-top:2px solid #d4a56a;padding:.55rem 1rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;gap:.5rem}
+.handle .toggle{font-family:ui-monospace,monospace;font-size:.72rem;color:#6bafc4;letter-spacing:.1em;flex-shrink:0}
+.handle .latest{font-size:.72rem;color:#a89578;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:left;padding-left:.5rem}
+.handle button{font-size:.6rem;padding:.2rem .5rem;border:1px solid #3d2418;border-radius:3px;background:transparent;color:#8a7a5c;cursor:pointer;font-family:-apple-system,sans-serif}
+.handle button:hover{color:#6bafc4;border-color:#6bafc4}
+.panel-content{background:#150c06;border-top:1px solid #3d2418;max-height:55vh;overflow-y:auto}
+.panel-content.hidden{display:none}
+.human-log{max-height:100px;overflow-y:auto;padding:.6rem 1rem;border-bottom:1px solid #3d2418;font-family:ui-monospace,monospace;font-size:.7rem}
+.human-log>div{margin-bottom:.2rem}
+.human-log .t{color:#4a3828}
+.human-log .m{color:#a88b4a}
+.debug-log{max-height:240px;overflow-y:auto;padding:.6rem 1rem;font-family:ui-monospace,monospace;font-size:.66rem;line-height:1.5}
+.debug-log>div{margin-bottom:.15rem;word-break:break-word}
+.debug-log .t{color:#4a3828}
+.debug-log .info{color:#a89578}
+.debug-log .ok{color:#a88b4a}
+.debug-log .warn{color:#e5c15a}
+.debug-log .err{color:#f87171}
+.debug-log .api{color:#6bafc4}
+.toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-120px);background:#231409;border:1px solid #3d2418;border-left:3px solid #6bafc4;border-radius:4px;padding:.75rem 1.2rem;font-size:.8rem;z-index:1000;opacity:0;transition:transform .3s,opacity .3s;max-width:90vw;text-align:center;font-family:Georgia,serif}
+.toast.visible{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{border-left-color:#10b981}
+.toast.error{border-left-color:#c44536}
+.toast.warn{border-left-color:#e5c15a}
+.status-bar{position:fixed;bottom:60px;left:0;right:0;background:#231409;border-top:1px solid #3d2418;padding:.5rem 1rem;font-size:.7rem;font-family:ui-monospace,monospace;color:#e8dcc8;display:flex;align-items:center;gap:.5rem;transform:translateY(100%);transition:transform .3s;z-index:30}
+.status-bar.visible{transform:translateY(0)}
+.status-bar .spinner{width:12px;height:12px;border:2px solid rgba(212,165,106,.2);border-top-color:#d4a56a;border-radius:50%;animation:spin .8s linear infinite}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#150c06}
+::-webkit-scrollbar-thumb{background:#4a3828;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#6bafc4}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<div class="kata">✦ Moebius Style Generator v5 ✦</div>
+<h1>Style First & Prompt Fusion</h1>
+<p class="sub">Le style Moebius imposé AVANT la description du visage</p>
+</header>
+
+<div class="banner">
+<strong>Explication du correctif :</strong> L'IA ignorait le style car la description du visage était trop longue. Désormais, <strong>le style Moebius est placé en tout premier</strong> dans le prompt de génération. Le mode Image-to-Image a été désactivé car il renvoyait des images noires (bug serveur). On garde uniquement la génération par texte, mais optimisée.
+</div>
+
+<section class="card">
+<div class="card-head"><span>🔑 Clés API Agnes</span><span class="badge" id="keyBadge">0 validée</span></div>
+<div class="card-body">
+<textarea id="keysInput" placeholder="Collez vos clés API ici, une par ligne :&#10;sk-xxxxxxxxxxxx&#10;sk-yyyyyyyyyyyy" autocomplete="off" spellcheck="false"></textarea>
+<div class="row">
+<button class="btn btn-amber" id="validateBtn">🔐 Valider et enregistrer</button>
+</div>
+<div class="status" id="keyStatus"><span class="dot"></span><span id="keyStatusText">Aucune clé enregistrée</span></div>
+</div>
+</section>
+
+<section class="card">
+<div class="card-head"><span>🖼️ Images de référence</span><span class="badge" id="refBadge">0 image</span></div>
+<div class="card-body">
+<div class="images-grid" id="imagesGrid"></div>
+<div class="row" style="margin-top:.2rem;">
+<button class="btn btn-slate" id="addImageBtn" style="flex:1;">＋ Ajouter une image</button>
+</div>
+<div class="row">
+<button class="btn btn-amber" id="analyzeBtn" disabled>🔍 1. Extraire les traits (sans style)</button>
+</div>
+<div class="status" id="analyzeStatus"><span class="dot"></span><span id="analyzeStatusText">En attente d'images</span></div>
+<div id="subjectDescriptions" style="margin-top:1rem; display:none;">
+<h4 style="font-family:Georgia; color:#6bafc4; margin-bottom:0.5rem; font-size:0.9rem;">Traits extraits (Modifiables) :</h4>
+<div id="descriptionsList"></div>
+<button class="btn btn-mega" id="generateBtn" style="margin-top:1rem;" disabled>✦ 2. Générer le style Moebius</button>
+</div>
+</div>
+</section>
+
+<section class="card hidden" id="resultsCard">
+<div class="card-head"><span>✦ Résultats</span><span class="badge" id="resultsBadge">0 / 0</span></div>
+<div class="card-body">
+<div class="grid" id="resultsGrid"></div>
+</div>
+</section>
+
+</div>
+
+<div class="panel">
+<div class="handle" id="panelHandle">
+<span class="toggle" id="panelToggle">▼ CONSOLE</span>
+<span class="latest" id="humanLatest">Prêt.</span>
+<button id="clearConsoleBtn">Effacer</button>
+</div>
+<div class="panel-content hidden" id="panelContent">
+<div class="human-log" id="humanLog"></div>
+<div class="debug-log" id="debugLog"></div>
+</div>
+</div>
+
+<div class="toast" id="toast"><span id="toastText">Message</span></div>
+<div class="status-bar" id="statusBar"><div class="spinner"></div><span id="statusText">Préparation…</span></div>
+
+<script>
+'use strict';
+
+const API_BASE = 'https://apihub.agnes-ai.com/v1';
+const MODEL_TEXT = 'agnes-2.5-flash';
+const MODEL_IMAGE = 'agnes-image-2.5-flash';
+const IMAGE_SIZE = '1024x1792'; 
+const MAX_ATTEMPTS = 3;
+
+// LE PROMPT MOEBIUS (MIS EN PREMIER LORS DE LA GÉNÉRATION)
+const FIXED_STYLE_PROMPT = "Moebius style, 1970s European sci-fi comic book illustration, Métal Hurlant, ligne claire, fine black ink cross-hatching, muted pastel watercolor washes (pale ochre, dusty rose, soft turquoise). Retro-futuristic sci-fi clothing. Minimalist desolate alien landscape background. Masterpiece. Portrait of";
+
+const state = {
+  apiKeys: [], images: [], imageNames: [], subjects: [], results: [], 
+  isRunning: false, stopRequested: false, keyIndex: 0,
+  humanLog: [], debugLog: []
+};
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nowTime = () => new Date().toLocaleTimeString('fr-FR', { hour12: false });
+const sanitize = t => String(t == null ? '' : t).replace(/[\u2018\u2019\u201B\u2032\u02BC]/g, "'").replace(/[\u201C\u201D\u201F\u2033]/g, '"').replace(/\u2013|\u2014/g, '-').replace(/\u2026/g, '...').replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\u00A0|\u202F/g, ' ');
+
+function human(msg) { state.humanLog.push({ t: nowTime(), m: msg }); if(state.humanLog.length>80) state.humanLog.shift(); $('humanLatest').textContent = msg; renderHuman(); }
+function renderHuman() { $('humanLog').innerHTML = state.humanLog.slice(-30).map(e => `<div><span class="t">${e.t}</span> <span class="m">${esc(e.m)}</span></div>`).join(''); $('humanLog').scrollTop = $('humanLog').scrollHeight; }
+function debug(msg, level = 'info', raw) { state.debugLog.push({ t: nowTime(), m: msg, c: level, raw: raw }); if(state.debugLog.length>500) state.debugLog.shift(); renderDebug(); }
+function renderDebug() { $('debugLog').innerHTML = state.debugLog.slice(-200).map(e => { let html = `<div><span class="t">${e.t}</span> <span class="${e.c}">${esc(e.m)}</span>`; if(e.raw) html += `<span class="raw">${esc(String(e.raw).slice(0, 1500))}</span>`; html += `</div>`; return html; }).join(''); $('debugLog').scrollTop = $('debugLog').scrollHeight; }
+function toast(msg, type = 'success') { const t = $('toast'); t.className = `toast ${type} visible`; $('toastText').textContent = msg; clearTimeout(t._tid); t._tid = setTimeout(() => { t.className = `toast ${type}`; }, 2500); }
+function setStatus(txt) { const b = $('statusBar'); if (txt) { b.classList.add('visible'); $('statusText').textContent = txt; } else b.classList.remove('visible'); }
+
+// KEYS
+function isValidKey(k) { return typeof k === 'string' && k.startsWith('sk-'); }
+async function quickPing(key) { try { const res = await fetch(API_BASE + '/chat/completions', { method: 'POST', headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: MODEL_TEXT, messages: [{ role: 'user', content: 'ok' }], max_tokens: 1 }) }); return res.status !== 401 && res.status !== 403; } catch (e) { return null; } }
+async function validateAndSaveKeys() {
+  const raw = $('keysInput').value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (!raw.length) return toast('Aucune clé', 'error');
+  $('validateBtn').disabled = true; $('validateBtn').textContent = '⏳...';
+  const valid = [];
+  for (let i=0; i<raw.length; i++) { if(!isValidKey(raw[i])) continue; if(await quickPing(raw[i]) === false) continue; valid.push(raw[i]); }
+  state.apiKeys = valid; $('validateBtn').disabled = false; $('validateBtn').textContent = '🔐 Valider';
+  $('keyBadge').textContent = `${valid.length} validée(s)`; $('keyStatus').className = valid.length ? 'status ok' : 'status err';
+  $('keyStatusText').textContent = valid.length ? 'Clés prêtes' : 'Aucune clé';
+  updateUI();
+}
+function getKey() { return state.apiKeys.length ? state.apiKeys[state.keyIndex++ % state.apiKeys.length] : ''; }
+
+// IMAGES
+function compressImg(dataUrl) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height, max = 800;
+      if (w > max || h > max) { if (w > h) { h = Math.round(h * max / w); w = max; } else { w = Math.round(w * max / h); h = max; } }
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => res(dataUrl); img.src = dataUrl;
+  });
+}
+async function handleImageFile(file) {
+  if (!file || !file.type.startsWith('image/')) return toast('Fichier invalide', 'error');
+  const dataUrl = await new Promise((res) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+  const compressed = await compressImg(dataUrl);
+  state.images.push(compressed); state.imageNames.push(file.name); refreshImagesGrid();
+}
+function refreshImagesGrid() {
+  const grid = $('imagesGrid'); grid.innerHTML = '';
+  state.images.forEach((img, i) => {
+    const slot = document.createElement('div'); slot.className = 'slot filled';
+    slot.innerHTML = `<button class="rm" data-rm="${i}">✕</button><img src="${img}">`; grid.appendChild(slot);
+  });
+  const addSlot = document.createElement('div'); addSlot.className = 'slot';
+  addSlot.innerHTML = `<input type="file" accept="image/*"><div class="icon">＋</div>`;
+  addSlot.querySelector('input').onchange = (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); e.target.value = ''; };
+  grid.appendChild(addSlot);
+  grid.querySelectorAll('[data-rm]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); state.images.splice(b.dataset.rm, 1); state.imageNames.splice(b.dataset.rm, 1); state.subjects = []; $('subjectDescriptions').style.display = 'none'; refreshImagesGrid(); }; });
+  $('refBadge').textContent = `${state.images.length} image(s)`; updateUI();
+}
+
+// API CALLS
+async function apiVision(system, user, imageUrl) {
+  const key = getKey(); if (!key) throw new Error('Aucune clé API');
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), 45000);
+  try {
+    const res = await fetch(API_BASE + '/chat/completions', {
+      method: 'POST', headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: MODEL_TEXT, messages: [{ role: 'system', content: sanitize(system) }, { role: 'user', content: [{ type: 'text', text: sanitize(user) }, { type: 'image_url', image_url: { url: imageUrl } }] }], temperature: 0.2 }),
+      signal: controller.signal
+    });
+    clearTimeout(tid); if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json(); return d.choices?.[0]?.message?.content || '';
+  } catch (e) { clearTimeout(tid); throw e; }
+}
+
+async function apiImage(prompt) {
+  const key = getKey(); if (!key) throw new Error('Aucune clé API');
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    if (state.stopRequested) throw new Error('Arrêt');
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 60000);
+    try {
+      const body = { 
+        model: MODEL_IMAGE, 
+        prompt: sanitize(prompt), 
+        size: IMAGE_SIZE, 
+        extra_body: { response_format: 'url' } 
+      };
+
+      const res = await fetch(API_BASE + '/images/generations', {
+        method: 'POST', headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body), signal: controller.signal
+      });
+      clearTimeout(tid);
+      if (res.status === 429 || res.status === 503) { await sleep(5000); continue; }
+      if (!res.ok) { const t = await res.text(); throw new Error(`HTTP ${res.status} ${t.slice(0,50)}`); }
+      const d = await res.json(); const item = d.data?.[0];
+      
+      // Vérification stricte de l'URL pour éviter le carré noir
+      if (item?.url && item.url.length > 10) return item.url;
+      if (item?.b64_json && item.b64_json.length > 10) return `data:image/png;base64,${item.b64_json}`;
+      
+      throw new Error('Image vide reçue');
+    } catch (e) {
+      clearTimeout(tid);
+      if (e.name === 'AbortError') throw new Error('Timeout (60s)');
+      if (attempt === MAX_ATTEMPTS - 1) throw e;
+      await sleep(3000);
+    }
+  }
+}
+
+// ANALYSE (Extraire uniquement les traits physiques)
+async function analyzeImages() {
+  if (!state.images.length) return;
+  $('analyzeBtn').disabled = true; $('subjectDescriptions').style.display = 'none';
+  human('🔍 Extraction des traits…'); setStatus('Analyse…');
+  state.subjects = [];
+  
+  // On demande une description COURTE (40 mots max) pour laisser la place au style
+  const sysPrompt = `Describe the person's physical traits in 40 words max. Focus ONLY on: ethnicity (e.g., Asian man), age, facial hair, and specific clothing. Ignore all style, colors, and lighting.`;
+
+  for (let i = 0; i < state.images.length; i++) {
+    try {
+      const desc = await apiVision(sysPrompt, "Describe.", state.images[i]);
+      state.subjects.push(desc.trim());
+    } catch (e) { state.subjects.push("an Asian man with a mustache, wearing a baseball cap and jacket."); }
+    await sleep(500);
+  }
+  
+  renderDescriptions();
+  $('analyzeStatus').className = 'status ok'; $('analyzeStatusText').textContent = 'Traits extraits. Prêt.';
+  $('subjectDescriptions').style.display = 'block';
+  setStatus(null); updateUI();
+}
+function renderDescriptions() {
+  const list = $('descriptionsList'); list.innerHTML = '';
+  state.subjects.forEach((sub, i) => {
+    const div = document.createElement('div'); div.style.marginBottom = '0.8rem';
+    div.innerHTML = `<label>Image ${i+1} :</label><textarea class="subject-input" data-idx="${i}" style="min-height:80px; font-size:0.75rem;">${esc(sub)}</textarea>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll('.subject-input').forEach(ta => { ta.oninput = (e) => { state.subjects[e.target.dataset.idx] = e.target.value; }; });
+}
+
+// GÉNÉRATION
+async function generateImages() {
+  if (!state.subjects.length) return;
+  $('generateBtn').disabled = true; $('resultsCard').classList.remove('hidden');
+  const grid = $('resultsGrid'); grid.innerHTML = '';
+  
+  state.results = state.subjects.map((sub, i) => ({ subject: sub, status: 'pending', url: null }));
+  state.results.forEach((res, i) => {
+    const card = document.createElement('div'); card.className = 'photo pending'; card.id = `card-${i}`;
+    card.innerHTML = `<div class="photo-img"><div class="load"><div class="spin"></div><div class="gen-title">En attente…</div></div></div><div class="photo-meta"><div class="ptitle">Image ${i+1}</div></div>`;
+    grid.appendChild(card);
+  });
+
+  human(`🎨 Génération en cours…`); setStatus(`Génération…`);
+  
+  let idx = 0;
+  async function worker() {
+    while (idx < state.results.length) {
+      const myIdx = idx++; const res = state.results[myIdx]; const card = $(`card-${myIdx}`);
+      if (card) { card.className = 'photo generating'; card.querySelector('.photo-img').innerHTML = `<div class="load"><div class="spin"></div><div class="gen-title">Génération…</div></div>`; }
+
+      // LE PROMPT EST MAINTENANT : [STYLE MOEBIUS EN PREMIER] + [SUJET]
+      const finalPrompt = `${FIXED_STYLE_PROMPT} ${res.subject}`;
+      
+      try {
+        const url = await apiImage(finalPrompt);
+        res.url = url; res.status = 'done';
+        if (card) {
+          card.className = 'photo done';
+          card.querySelector('.photo-img').innerHTML = `<img src="${url}" loading="lazy">`;
+          card.querySelector('.photo-meta').innerHTML += `<a href="${url}" target="_blank" class="popen">Ouvrir</a>`;
+        }
+        human(`✅ Image ${myIdx+1} OK.`);
+      } catch (e) {
+        res.status = 'error';
+        if (card) { card.className = 'photo error'; card.querySelector('.photo-img').innerHTML = `<div class="err">✕ Échec<br><small>${esc(e.message)}</small></div>`; }
+        debug(`Erreur ${myIdx+1} : ${e.message}`, 'err');
+      }
+      updateResultsCount();
+    }
+  }
+  await Promise.all([worker(), worker()]);
+  setStatus(null); $('generateBtn').disabled = false;
+  human('🏁 Terminé.'); toast('Génération terminée', 'success');
+}
+function updateResultsCount() { $('resultsBadge').textContent = `${state.results.filter(r => r.url).length} / ${state.results.length}`; }
+
+// BINDINGS
+function updateUI() {
+  $('analyzeBtn').disabled = !state.apiKeys.length || !state.images.length || state.isRunning;
+  $('generateBtn').disabled = !state.apiKeys.length || !state.subjects.length || state.isRunning;
+}
+function bind() {
+  $('validateBtn').onclick = validateAndSaveKeys;
+  $('addImageBtn').onclick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); }; input.click(); };
+  $('analyzeBtn').onclick = analyzeImages;
+  $('generateBtn').onclick = generateImages;
+  
+  const handle = $('panelHandle'); let open = false;
+  handle.onclick = () => { open = !open; $('panelContent').classList.toggle('hidden', !open); $('panelToggle').textContent = (open ? '▲' : '▼') + ' CONSOLE'; };
+  $('clearConsoleBtn').onclick = () => { state.debugLog = []; renderDebug(); };
+
+  human('✦ Générateur v5 prêt.');
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+</script>
+</body>
+</html>
